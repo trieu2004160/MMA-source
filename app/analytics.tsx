@@ -1,31 +1,37 @@
-import React from 'react';
+import { useRouter } from "expo-router";
+import React from "react";
 import {
-  View,
-  Text,
+  Dimensions,
   ScrollView,
   StyleSheet,
-  Dimensions,
+  Text,
   TouchableOpacity,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store/reduxStore';
+  View,
+} from "react-native";
+import { BarChart, LineChart } from "react-native-chart-kit";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/reduxStore";
 import {
-  getWeeklyStudyData,
   getCourseCompletionData,
-} from '../store/studySlice';
-import { BarChart, LineChart } from 'react-native-chart-kit';
-import { DailyMinutesData, CourseCompletionData } from '../types';
+  getWeeklyStudyData,
+} from "../store/studySlice";
+import { CourseCompletionData, DailyMinutesData } from "../types";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CHART_WIDTH = SCREEN_WIDTH - 40;
 
 export default function AnalyticsScreen() {
   const router = useRouter();
-  const weeklyData = useSelector((state: RootState) => getWeeklyStudyData(state));
-  const courseCompletion = useSelector((state: RootState) => getCourseCompletionData(state));
+  const weeklyData = useSelector((state: RootState) =>
+    getWeeklyStudyData(state)
+  );
+  const courseCompletion = useSelector((state: RootState) =>
+    getCourseCompletionData(state)
+  );
 
-  const hasWeeklyData = weeklyData.some((day: DailyMinutesData) => day.minutes > 0);
+  const hasWeeklyData = weeklyData.some(
+    (day: DailyMinutesData) => day.minutes > 0
+  );
   const hasCourseData = courseCompletion.length > 0;
   const hasData = hasWeeklyData || hasCourseData;
 
@@ -49,7 +55,9 @@ export default function AnalyticsScreen() {
         ),
         datasets: [
           {
-            data: courseCompletion.map((c: CourseCompletionData) => c.completionPercentage || 0.1),
+            data: courseCompletion.map(
+              (c: CourseCompletionData) => c.completionPercentage || 0.1
+            ),
           },
         ],
       }
@@ -77,7 +85,10 @@ export default function AnalyticsScreen() {
     },
   };
 
-  const maxMinutes = Math.max(...weeklyData.map((d: DailyMinutesData) => d.minutes), 1);
+  const maxMinutes = Math.max(
+    ...weeklyData.map((d: DailyMinutesData) => d.minutes),
+    1
+  );
 
   return (
     <View style={styles.container}>
@@ -93,7 +104,10 @@ export default function AnalyticsScreen() {
         <View style={styles.backButton} />
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+      >
         {!hasData ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>📊</Text>
@@ -106,9 +120,11 @@ export default function AnalyticsScreen() {
           <>
             {/* Daily Minutes Chart */}
             <View style={styles.chartContainer}>
-              <Text style={styles.chartTitle}>📊 Total Minutes Studied Per Day</Text>
+              <Text style={styles.chartTitle}>
+                📊 Total Minutes Studied Per Day
+              </Text>
               <Text style={styles.chartSubtitle}>This Week</Text>
-              
+
               {hasWeeklyData ? (
                 <View style={styles.chartWrapper}>
                   <BarChart
@@ -126,14 +142,22 @@ export default function AnalyticsScreen() {
                     <View style={styles.statBox}>
                       <Text style={styles.statLabel}>Total</Text>
                       <Text style={styles.statValue}>
-                        {weeklyData.reduce((sum: number, d: DailyMinutesData) => sum + d.minutes, 0)}m
+                        {weeklyData.reduce(
+                          (sum: number, d: DailyMinutesData) => sum + d.minutes,
+                          0
+                        )}
+                        m
                       </Text>
                     </View>
                     <View style={styles.statBox}>
                       <Text style={styles.statLabel}>Average</Text>
                       <Text style={styles.statValue}>
                         {Math.round(
-                          weeklyData.reduce((sum: number, d: DailyMinutesData) => sum + d.minutes, 0) / 7
+                          weeklyData.reduce(
+                            (sum: number, d: DailyMinutesData) =>
+                              sum + d.minutes,
+                            0
+                          ) / 7
                         )}
                         m/day
                       </Text>
@@ -141,25 +165,32 @@ export default function AnalyticsScreen() {
                     <View style={styles.statBox}>
                       <Text style={styles.statLabel}>Peak Day</Text>
                       <Text style={styles.statValue}>
-                        {weeklyData.reduce((max: DailyMinutesData, d: DailyMinutesData) =>
-                          d.minutes > max.minutes ? d : max
-                        ).day}
+                        {
+                          weeklyData.reduce(
+                            (max: DailyMinutesData, d: DailyMinutesData) =>
+                              d.minutes > max.minutes ? d : max
+                          ).day
+                        }
                       </Text>
                     </View>
                   </View>
                 </View>
               ) : (
                 <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}>No study sessions this week</Text>
+                  <Text style={styles.noDataText}>
+                    No study sessions this week
+                  </Text>
                 </View>
               )}
             </View>
 
             {/* Course Completion Chart */}
             <View style={styles.chartContainer}>
-              <Text style={styles.chartTitle}>🎯 Completion Progress by Course</Text>
+              <Text style={styles.chartTitle}>
+                🎯 Completion Progress by Course
+              </Text>
               <Text style={styles.chartSubtitle}>Percentage (%)</Text>
-              
+
               {hasCourseData && courseChartData ? (
                 <View style={styles.chartWrapper}>
                   <LineChart
@@ -177,11 +208,15 @@ export default function AnalyticsScreen() {
                     {courseCompletion.map((course) => (
                       <View key={course.courseId} style={styles.completionItem}>
                         <View style={styles.completionInfo}>
-                          <Text style={styles.completionCourseName} numberOfLines={1}>
+                          <Text
+                            style={styles.completionCourseName}
+                            numberOfLines={1}
+                          >
                             {course.courseName}
                           </Text>
                           <Text style={styles.completionDetails}>
-                            {course.completedLessons} / {course.totalLessons} lessons
+                            {course.completedLessons} / {course.totalLessons}{" "}
+                            lessons
                           </Text>
                         </View>
                         <View style={styles.completionBarContainer}>
@@ -226,8 +261,9 @@ export default function AnalyticsScreen() {
                 <View style={styles.insightCard}>
                   <Text style={styles.insightIcon}>🎓</Text>
                   <Text style={styles.insightText}>
-                    {courseCompletion.filter((c) => c.completionPercentage === 100)
-                      .length > 0
+                    {courseCompletion.filter(
+                      (c) => c.completionPercentage === 100
+                    ).length > 0
                       ? `${
                           courseCompletion.filter(
                             (c) => c.completionPercentage === 100
@@ -248,31 +284,31 @@ export default function AnalyticsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingTop: 50,
     paddingBottom: 15,
     paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: "#E0E0E0",
   },
   backButton: {
     width: 60,
   },
   backButtonText: {
     fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
+    color: "#007AFF",
+    fontWeight: "600",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: "#333",
   },
   scrollView: {
     flex: 1,
@@ -283,8 +319,8 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 100,
   },
   emptyIcon: {
@@ -293,22 +329,22 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     paddingHorizontal: 40,
   },
   chartContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -319,17 +355,17 @@ const styles = StyleSheet.create({
   },
   chartTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   chartSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 20,
   },
   chartWrapper: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   chart: {
@@ -337,39 +373,39 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: "#F0F0F0",
   },
   statBox: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginBottom: 4,
   },
   statValue: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#007AFF',
+    fontWeight: "700",
+    color: "#007AFF",
   },
   barTopLabel: {
-    color: '#007AFF',
+    color: "#007AFF",
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   noDataContainer: {
     padding: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   noDataText: {
     fontSize: 14,
-    color: '#999',
-    fontStyle: 'italic',
+    color: "#999",
+    fontStyle: "italic",
   },
   completionList: {
     marginTop: 20,
@@ -382,55 +418,55 @@ const styles = StyleSheet.create({
   },
   completionCourseName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   completionDetails: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
   completionBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   completionBarBackground: {
     flex: 1,
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: "#E0E0E0",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   completionBarFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
+    height: "100%",
+    backgroundColor: "#4CAF50",
     borderRadius: 4,
   },
   completionPercentage: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#4CAF50',
+    fontWeight: "600",
+    color: "#4CAF50",
     minWidth: 40,
-    textAlign: 'right',
+    textAlign: "right",
   },
   section: {
     marginBottom: 30,
   },
   sectionTitle: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: "#333",
     marginBottom: 16,
   },
   insightCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -445,8 +481,8 @@ const styles = StyleSheet.create({
   },
   insightText: {
     fontSize: 15,
-    color: '#333',
+    color: "#333",
     flex: 1,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });
